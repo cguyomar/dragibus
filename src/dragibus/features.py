@@ -96,6 +96,13 @@ class Transcript(Feature):
             self.start = self.exons[0].start
             self.end = self.exons[-1].end
 
+            # Mark internal exons
+            for i,e in enumerate(self.exons):
+                if i==0 or i==(len(self.exons)-1):
+                    e.is_internal = False
+                else:
+                    e.is_internal = True
+
     def sort_introns(self):
         self.introns.sort(key=lambda x:x.start)
 
