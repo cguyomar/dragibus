@@ -85,7 +85,7 @@ class Transcript(Feature):
         self.exons.append(e)
         assert e.chr == self.chr
         assert e.strand == self.strand
-        assert e.start > self.end or e.end < self.start  # Check that the transcript does not already covers the exons
+        # assert e.start >= self.end or e.end <= self.start  # Check that the transcript does not already covers the exons
         self.start = min(self.start,e.start)
         self.end = min(self.end,e.end)
 

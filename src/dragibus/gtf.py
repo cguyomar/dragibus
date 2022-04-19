@@ -32,6 +32,7 @@ def parse_gtf(in_file):
                     else:
                         t = Transcript(line[0:8],{k:v for k,v in f.attributes.items() if k in ["gene_id","transcript_id"]})
                         transcripts[t.id] = t
+                        transcripts[f.transcript_id].add_exon(f)
 
                     # Add gene from exon gene_id                    
                     if f.gene_id in genes.keys():
