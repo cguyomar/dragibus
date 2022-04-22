@@ -158,6 +158,8 @@ class Intron(Feature):
 def find_canonic_introns(transcripts,fasta):
     nb_introns = 0
     dimer_coords = set()
+
+    # Collect the coordinates of donor / acceptor sequences for each intron
     for t in transcripts.values():
         for i in t.introns:
             
@@ -172,8 +174,8 @@ def find_canonic_introns(transcripts,fasta):
             dimer_coords.add((i.chr,coords[0][0],coords[0][1],i_id + "_donor",0,i.strand))
             dimer_coords.add((i.chr,coords[1][0],coords[1][1],i_id + "_acceptor",0,i.strand))
 
+    # Get sequence for each dimer using bedtools
     bed = pybedtools.BedTool(list(dimer_coords))
-    # print(bed)
     fa = bed.sequence(fi=fasta,s=True,name=True).seqfn
 
     donor_seq = dict() # dict intron_id -> str
@@ -184,7 +186,10 @@ def find_canonic_introns(transcripts,fasta):
             if line.startswith(">"):
                 header = line[1:].split("::")[0]
                 id = "_".join(header.split("_")[0:3])
-                dir = header.split("_")[3]
+                if header.split("_")[3].startswith('donor'):
+                    dir = "donor"
+                elif header.split("_")[3].startswith('acceptor'):
+                    dir = "acceptor"
             else:
                 if dir == "donor":
                     donor_seq[id] = line.strip().upper()
