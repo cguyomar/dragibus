@@ -3,6 +3,7 @@
 import argparse
 
 import dragibus
+from dragibus.stats import collect_stat
 
 def main():
 
@@ -20,11 +21,24 @@ def main():
     fasta = args.fasta    
     out_file = args.out_file
 
-    genes,transcripts,exons = dragibus.parse_gtf(in_file)
+    annotation_files = [in_file]
 
-    dragibus.find_canonic_introns(transcripts,fasta)
+    genes = dict()
+    transcripts = dict()
+    exons = dict()
+    introns = dict()
+    for f in annotation_files:
+        introns[f] = set()
+        genes[f],transcripts[f],exons[f] = dragibus.parse_gtf(in_file)
+        # Enrich transcripts with intron information
+        dragibus.find_canonic_introns(transcripts[f],fasta)
+        for t in transcripts[f].values():
+            for i in t.introns:
+                introns[f].add(i)
 
-    dragibus.make_report(genes,transcripts,exons,out_file)
+
+    dragibus.make_report(genes,transcripts,exons,introns,out_file)
+
 
 
 if __name__ == "__main__":
