@@ -18,7 +18,7 @@ def make_report(genes,transcripts,exons,introns,filename="out.md"):
     #
     #  Create markdown
     #
-    mdFile = MdUtils(file_name=filename, title='GFF evaluation report')
+    mdFile = MdUtils(file_name=filename, title='Dragibus evaluation report')
 
 
     # Import plotly dependency
@@ -145,7 +145,7 @@ def make_report(genes,transcripts,exons,introns,filename="out.md"):
     )
    
     # df_transcripts_by_internal_exon_stats = nb_transcripts_by_internal_exon_length(transcripts.values(),thr_internal_exon_length )
-    mdFile.write(df_transcripts_by_internal_exon_length.to_markdown(index=False, stralign='left',numalign="left"),wrap_width=0)
+    mdFile.write(df_transcripts_by_internal_exon_length.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line("\n")
 
 
@@ -160,13 +160,13 @@ def make_report(genes,transcripts,exons,introns,filename="out.md"):
     mdFile.new_line()
 
     # df_internal_exons_by_length = nb_internal_exons_by_length(transcripts.values(),thr_internal_exon_length)
-    mdFile.write(df_internal_exons_by_length.to_markdown(index=False, stralign='left',numalign="left"),wrap_width=0)
-    # mdFile.new_line()
+    mdFile.write(df_internal_exons_by_length.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
+    mdFile.new_line()
 
 
     mdFile.new_header(level=2, title='Intron canonicity')
   
-
+    mdFile.new_line()
     intron_canonicity_stat = collect_stat(introns, lambda i : i.canonic,"set") 
     df_intron_canonicity = binary_feature_distribution(intron_canonicity_stat,
             rename={True:"Canonical ",
