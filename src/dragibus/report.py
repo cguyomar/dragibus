@@ -3,13 +3,14 @@ from mdutils import Html
 import os
 import pandas as pd
 import plotly
+import subprocess
 
 from dragibus.plots import *
 from dragibus.stats import *
 
 
 
-def make_report(genes,transcripts,exons,introns,filename="out.md"):
+def make_report(genes,transcripts,exons,introns,mode,out_prefix):
 
     if not os.path.exists('ressources'):
         os.mkdir("ressources")
@@ -18,13 +19,12 @@ def make_report(genes,transcripts,exons,introns,filename="out.md"):
     #
     #  Create markdown
     #
-    mdFile = MdUtils(file_name=filename, title='Dragibus evaluation report')
+    mdFile = MdUtils(file_name=out_prefix+".md", title='Dragibus evaluation report')
 
 
     # Import plotly dependency
-
-
-    mdFile.write('<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>')
+    if mode=="html":
+        mdFile.write('<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>')
 
     #
     #  Statistics for the whole file
@@ -58,7 +58,7 @@ def make_report(genes,transcripts,exons,introns,filename="out.md"):
     length_breaks = [50000,100000,500000,1000000,2000000]
 
     transcript_length_stat = collect_stat(transcripts,lambda t:t.transcript_length)
-
+    
     df_transcript_length, df_transcript_length_perc = numeric_feature_distribution(transcript_length_stat,length_breaks)
 
     # df_transcript_length = pd.DataFrame.from_dict({l:nb_transcripts_by_transcript_length(transcripts,l) for l in length_breaks},
@@ -84,12 +84,14 @@ def make_report(genes,transcripts,exons,introns,filename="out.md"):
 
     #  Non interactive plot - for pdf/md output
     # plot_transcript_length_histogram(transcripts.values(),"ressources/transcript_length_histogram.svg")
-    
-    # html plot :
+
     fig_transcript_size = plot_transcript_length_density(transcript_length_stat,5000,"Distribution of transcript size")
-    html_transcript_size = plotly.offline.plot(fig_transcript_size, include_plotlyjs=False, output_type='div')
-    # fig.write_json("plot.json")
-    mdFile.new_paragraph(Html.paragraph(text=html_transcript_size),wrap_width=0)
+    if mode == "html":
+        html_transcript_size = plotly.offline.plot(fig_transcript_size, include_plotlyjs=False, output_type='div')
+        mdFile.new_paragraph(Html.paragraph(text=html_transcript_size),wrap_width=0)
+    elif mode == "markdown":
+        fig_transcript_size.write_image("ressources/transcript_length_histogram.svg")
+        mdFile.new_paragraph(Html.image(path="ressources/transcript_length_histogram.svg"))
     mdFile.new_line()
 
     mdFile.new_header(level=3, title='Transcripts cdna length distribution')
@@ -180,3 +182,10 @@ def make_report(genes,transcripts,exons,introns,filename="out.md"):
 
 
     mdFile.create_md_file()
+
+    # make html report from md
+    if mode == "html":
+        out_name = out_prefix+".html"
+        args = ['pandoc','-s','-c','pandoc.css','--from','markdown-markdown_in_html_blocks+raw_html','-o','out.html','out.md']
+        # subprocess.Popen(args)
+        subprocess.check_call(args)
