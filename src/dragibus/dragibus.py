@@ -42,8 +42,9 @@ def main():
     elif mode=="html":
         ext=".html"
 
-    
 
+    hexamers = dragibus.scan_genome_for_polyA_motifs(fasta)
+   
     annotation_files = [in_file]
 
     genes = dict()
@@ -59,7 +60,9 @@ def main():
             for i in t.introns:
                 introns[f].add(i)
 
-
+    for f in annotation_files:
+        dragibus.find_transcripts_with_polya_signal(transcripts[f],hexamers,10)
+        
     dragibus.make_report(genes,transcripts,exons,introns,mode,out_prefix)
 
 

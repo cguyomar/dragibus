@@ -179,6 +179,50 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
     # df_canonicity = intron_canonicity_stats(transcripts.values())
     mdFile.write(df_intron_canonicity.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
 
+    #
+    #  PolyA signature
+    # 
+    mdFile.new_line()
+    mdFile.new_header(level=2, title='Polyadenylation sites') 
+    mdFile.new_line()
+
+    # All transcripts
+    mdFile.write("**Presence of polyA sites for all transcripts** \n ")
+
+    polyA_stat = collect_stat(transcripts, lambda t : t.polyA) 
+    df_transcripts_polyA = binary_feature_distribution(polyA_stat,
+            rename={True:"PolyA site",
+                    False:"No polyA site",
+                    None:"NA"}
+    )
+    mdFile.new_line()
+    mdFile.write(df_transcripts_polyA.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
+    mdFile.new_line()
+    mdFile.new_line()
+    
+    # Unique tts
+    mdFile.write("**Presence of polyA sites for unique transcription terminaison sites** \n ")
+
+    get_tts = lambda t: (t.chr,t.end,t.strand) if t.strand=="+" else (t.chr,t.start,t.strand)
+    
+    transcripts_unique_tts = defaultdict(dict)
+    for f,transcripts_f in transcripts.items():
+        unique_tts = { get_tts(t) for t in transcripts_f.values() }
+        for id,t in transcripts_f.items():
+            tts = get_tts(t)
+            if tts in unique_tts:
+                transcripts_unique_tts[f][id] = t
+                unique_tts.remove(tts)
+    polyA_stat_unique = collect_stat(transcripts_unique_tts, lambda t : t.polyA) 
+    df_transcripts_polyA_unique = binary_feature_distribution(polyA_stat_unique,
+            rename={True:"PolyA site",
+                    False:"No polyA site",
+                    None:"NA"}
+    )
+    mdFile.new_line()
+    mdFile.write(df_transcripts_polyA_unique.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
+    mdFile.new_line()
+    mdFile.new_line()
 
     mdFile.create_md_file()
 
