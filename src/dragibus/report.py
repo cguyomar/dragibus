@@ -116,15 +116,14 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
     # mdFile.new_line()
 
     fig_cdna_size = plot_transcript_length_density(cdna_length_stat,500,"Distribution of cdna length size")
-    html_cdna_size = plotly.offline.plot(fig_cdna_size, include_plotlyjs=False, output_type='div')
-    # fig.write_json("plot.json")
-    mdFile.new_paragraph(Html.paragraph(text=html_cdna_size),wrap_width=0)
-    mdFile.new_line()
 
-    # Static plot :
-    # plot_cdna_length_histogram(transcripts.values(),"ressources/cdna_length_histogram.svg")
-    # mdFile.new_paragraph(Html.image(path="ressources/cdna_length_histogram.svg"))
-    # mdFile.new_line()
+    if mode == "html":
+    html_cdna_size = plotly.offline.plot(fig_cdna_size, include_plotlyjs=False, output_type='div')
+    mdFile.new_paragraph(Html.paragraph(text=html_cdna_size),wrap_width=0)
+    elif mode == "markdown":
+        fig_cdna_size.write_image("ressources/cdna_size_histogram.svg")
+        mdFile.new_paragraph(Html.image(path="ressources/cdna_size_histogram.svg"))
+    mdFile.new_line()
 
 
     #
