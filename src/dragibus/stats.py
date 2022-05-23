@@ -3,7 +3,7 @@ from collections import Counter
 
 
 
-def basic_stats(genes,transcripts_by_f,exons_by_f):
+def basic_stats(genes_by_f,transcripts_by_f,exons_by_f):
     
     values = dict()
 
@@ -11,14 +11,12 @@ def basic_stats(genes,transcripts_by_f,exons_by_f):
 
         exons = exons_by_f[f]
         transcripts = transcripts_by_f[f]
+        genes = genes_by_f[f]
 
         nb_exons = len(exons)
         nb_distinct_exons = len({(e.chr,e.start,e.end) for e in exons})
-
         nb_transcripts = len(transcripts)
-
         nb_genes = len(genes)
-
         nb_introns = len({i for t in transcripts.values() for i in t.introns})
         nb_distinct_introns = len({(i.chr,i.start,i.end) for t in transcripts.values() for i in t.introns})
 
