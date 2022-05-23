@@ -62,12 +62,7 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
     
     df_transcript_length, df_transcript_length_perc = numeric_feature_distribution(transcript_length_stat,length_breaks)
 
-    # df_transcript_length = pd.DataFrame.from_dict({l:nb_transcripts_by_transcript_length(transcripts,l) for l in length_breaks},
-    #     orient='index',
-    #     columns=["Number of transcripts"])
-    # df_transcript_length['Percentage of transcripts'] = df_transcript_length["Number of transcripts"] / len(transcripts)
-    # df_transcript_length['Percentage of transcripts'] = df_transcript_length['Percentage of transcripts'].map("{:.2%}".format)
-    
+
     mdFile.new_line("\n")
     mdFile.write("**Distribution by number of transcripts** ")
     mdFile.new_line("\n")
@@ -119,8 +114,8 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
     fig_cdna_size = plot_transcript_length_density(cdna_length_stat,500,"Distribution of cdna length size")
 
     if mode == "html":
-    html_cdna_size = plotly.offline.plot(fig_cdna_size, include_plotlyjs=False, output_type='div')
-    mdFile.new_paragraph(Html.paragraph(text=html_cdna_size),wrap_width=0)
+        html_cdna_size = plotly.offline.plot(fig_cdna_size, include_plotlyjs=False, output_type='div')
+        mdFile.new_paragraph(Html.paragraph(text=html_cdna_size),wrap_width=0)
     elif mode == "markdown":
         fig_cdna_size.write_image("ressources/cdna_size_histogram.svg")
         mdFile.new_paragraph(Html.image(path="ressources/cdna_size_histogram.svg"))
@@ -161,7 +156,6 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
     mdFile.new_header(level=3, title='Internal exons larger than ' + str(thr_internal_exon_length) + " bp.")
     mdFile.new_line()
 
-    # df_internal_exons_by_length = nb_internal_exons_by_length(transcripts.values(),thr_internal_exon_length)
     mdFile.write(df_internal_exons_by_length.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
 
@@ -177,7 +171,6 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
     )
 
 
-    # df_canonicity = intron_canonicity_stats(transcripts.values())
     mdFile.write(df_intron_canonicity.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
 
     #
