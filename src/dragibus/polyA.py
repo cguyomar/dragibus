@@ -59,10 +59,3 @@ def find_transcripts_with_polya_signal(transcripts,hexamers,flank):
     for t_id in transcripts.keys():
         transcripts[t_id].polyA = t_id in transcripts_with_polyA
 
-
-    
-    
-            
-
-
-# | awk '{print $1,$(NF-4)-1,$(NF-3),".",".",$NF}' OFS='\t'  > $genbase.polyAsites.bed

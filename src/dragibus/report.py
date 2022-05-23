@@ -4,6 +4,7 @@ import os
 import pandas as pd
 import plotly
 import subprocess
+from collections import defaultdict
 
 from dragibus.plots import *
 from dragibus.stats import *
@@ -44,7 +45,7 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
 
     monoexonic_df = monoexonic_stats(transcripts)
 
-    mdFile.write(monoexonic_df.to_markdown(index=False, stralign='left',numalign="left"),wrap_width=0)
+    mdFile.write(monoexonic_df.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
 
     #
@@ -229,6 +230,15 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
     # make html report from md
     if mode == "html":
         out_name = out_prefix+".html"
-        args = ['pandoc','-s','-c','pandoc.css','--from','markdown-markdown_in_html_blocks+raw_html','-o','out.html','out.md']
-        # subprocess.Popen(args)
+        args = [
+                'pandoc',
+                '-s',
+                '-c',
+                'pandoc.css',
+                '--from',
+                'markdown-markdown_in_html_blocks+raw_html',
+                '-o',
+                out_name,
+                out_prefix+".md"
+            ]
         subprocess.check_call(args)

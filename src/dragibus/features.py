@@ -196,14 +196,12 @@ def find_canonic_introns(transcripts,fasta):
                 elif dir == "acceptor":
                     acceptor_seq[id] = line.strip().upper()
                 id = dir = ""
-    # print(acceptor_seq)
 
     # Establish canonicity
     a=0
     for t in transcripts.values():
         for i in t.introns:
             a += 1 
-
             if (acceptor_seq[i.id],donor_seq[i.id]) in (("AG","GT"),("AG","GC"),("AC","AT")):
                 i.canonic=True
             else:
