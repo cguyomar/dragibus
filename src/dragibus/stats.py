@@ -64,7 +64,7 @@ def numeric_feature_distribution(stat_by_fname,breaks):
     res = dict()
     res_perc = dict()
     for file in stat_by_fname.keys():
-        res[file] = [len({f for f in stat_by_fname[file] if f > l}) for l in breaks]
+        res[file] = [len([f for f in stat_by_fname[file] if f >= l]) for l in breaks]
         res_perc[file] = [r / len(stat_by_fname[file]) for r in res[file]]
     df = pd.DataFrame(res,index=breaks)
     df_perc = pd.DataFrame(res_perc,index=breaks)

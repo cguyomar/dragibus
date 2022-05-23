@@ -56,7 +56,7 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
 
 
     mdFile.new_header(level=3, title='Transcripts size distribution')
-    length_breaks = [50000,100000,500000,1000000,2000000]
+    length_breaks = [0,50000,100000,500000,1000000,2000000]
 
     transcript_length_stat = collect_stat(transcripts,lambda t:t.transcript_length)
     
@@ -67,6 +67,7 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.write("**Distribution by number of transcripts** ")
     mdFile.new_line("\n")
 
+    mdFile.write("Number of transcripts longer than n nt. \n")
     mdFile.write(df_transcript_length.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
     mdFile.new_line()
@@ -75,6 +76,7 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.write("**Distribution by percentage of transcripts**")
     mdFile.new_line("\n")
 
+    mdFile.write("Percentage of transcripts longer than n nt. \n")
     mdFile.write(df_transcript_length_perc.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
 
@@ -93,12 +95,13 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.new_header(level=3, title='Transcripts cdna length distribution')
 
     cdna_length_stat = collect_stat(transcripts,lambda t:t.cdna_length)
-    df_cdna_length, df_cdna_length_perc = numeric_feature_distribution(cdna_length_stat,[2000,5000,10000,50000,100000])
+    df_cdna_length, df_cdna_length_perc = numeric_feature_distribution(cdna_length_stat,[0,2000,5000,10000,50000,100000])
 
     mdFile.new_line("\n")
     mdFile.write("**Distribution by number of transcripts** ")
     mdFile.new_line("\n")
 
+    mdFile.write("Number of cdnas longer than n nt. \n")
     mdFile.write(df_cdna_length.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
     mdFile.new_line()
@@ -107,6 +110,7 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.write("**Distribution by percentage of transcripts**")
     mdFile.new_line("\n")
 
+    mdFile.write("Percentage of cdnas longer than n nt. \n")
     mdFile.write(df_cdna_length_perc.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
     # mdFile.new_line()
