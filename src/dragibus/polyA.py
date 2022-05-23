@@ -30,16 +30,8 @@ def scan_genome_for_polyA_motifs(fasta):
 
     with open(outfile_name) as file:
         for line in file:
-            # line = line.split("\t")
             line = line.strip().split("\t")
-            # print(line)
-
             hexamers.append([line[0].split(" ")[0],line[-5],line[-4],".",".",line[-1]])
-
-            # f.write("\t".join([line[0],line[-5],line[-4],".",".",line[-1]])+"\n")
-            # print $1,$(NF-4)-1,$(NF-3),".",".",$NF
-
-    pybedtools.BedTool(hexamers).saveas("toto.bed")
 
     return(hexamers)
 

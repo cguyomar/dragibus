@@ -48,10 +48,20 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.write(monoexonic_df.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
 
-    #
-    #  Length distribution
-    #
+    mdFile.new_header(level=2, title='Number of exons per transcript')
+    mdFile.new_line()
 
+    nb_e_per_transcript = collect_stat(transcripts,lambda t:len(t.exons))
+    df_nb_e_per_t = discrete_feature_distribution(nb_e_per_transcript)
+    plot_nb_e_per_t = plot_discrete_distribution(df_nb_e_per_t)
+    if mode == "html":
+        html_nb_e_per_t = plotly.offline.plot(plot_nb_e_per_t, include_plotlyjs=False, output_type='div')
+        mdFile.new_paragraph(Html.paragraph(text=html_nb_e_per_t),wrap_width=0)
+    elif mode == "markdown":
+        plot_nb_e_per_t.write_image("ressources/nb_exons_per_transcript.svg")
+        mdFile.new_paragraph(Html.image(path="ressources/nb_exons_per_transcript.svg"))
+    mdFile.new_line()
+ 
     mdFile.new_header(level=2, title='Transcripts length distribution')
 
 

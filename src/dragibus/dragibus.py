@@ -16,7 +16,7 @@ def main():
     # parser.add_argument("--out",dest='out_file')
     # parser.add_argument("--fasta",dest='fasta')
 
-    skip_polya=True
+    skip_polya=False
 
     args = parser.parse_args()
 
@@ -46,7 +46,7 @@ def main():
 
 
     if not skip_polya:
-    hexamers = dragibus.scan_genome_for_polyA_motifs(fasta)
+        hexamers = dragibus.scan_genome_for_polyA_motifs(fasta)
    
 
     genes = dict()
@@ -63,9 +63,9 @@ def main():
                 introns[f].add(i)
 
     if not skip_polya:
-    for f in annotation_files:
-        dragibus.find_transcripts_with_polya_signal(transcripts[f],hexamers,10)
-        
+        for f in annotation_files:
+            dragibus.find_transcripts_with_polya_signal(transcripts[f],hexamers,10)
+    
     dragibus.make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix)
 
 

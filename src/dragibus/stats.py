@@ -1,4 +1,5 @@
 import pandas as pd
+from collections import Counter
 
 
 
@@ -56,6 +57,19 @@ def monoexonic_stats(transcripts_by_f):
     df["% monoexonic transcripts"] = df["% monoexonic transcripts"].map("{:.2%}".format)
     df["% multiexonic transcripts"] = df["% multiexonic transcripts"].map("{:.2%}".format)
     return(df)
+
+def discrete_feature_distribution(stat_by_fname):
+
+    df = pd.DataFrame()
+    for file in stat_by_fname.keys():
+        count = Counter(stat_by_fname[file])
+        temp = pd.DataFrame.from_dict(count, orient='index')
+        df = pd.merge(df,temp,left_index=True,right_index=True,how="outer")
+        # Name column
+        df.set_axis([*df.columns[:-1], file], axis=1, inplace=True)
+    df.sort_index(inplace=True)
+    return(df)
+
 
 def numeric_feature_distribution(stat_by_fname,breaks):
     # For a set of features ( fname -> features)

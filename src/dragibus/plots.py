@@ -2,6 +2,7 @@ import pandas
 # import seaborn as sns
 import matplotlib.pyplot as plt
 import plotly.figure_factory as ff
+import plotly.express as px
 
 def plot_nb_transcripts_per_gene(genes,outname=""):
     df_g = pandas.DataFrame(
@@ -44,7 +45,10 @@ def plot_transcript_length_density(features_stat,bin_size,title=""):
     return(fig)
 
 
-
+def plot_discrete_distribution(df,max=10,title=""):
+    fig = px.bar(df,barmode='group')
+    fig.layout.update(title=title)
+    return(fig)
 
 def plot_cdna_length_histogram(transcripts,outname=""):
     h = sns.histplot({t.cdna_length for t in transcripts})
