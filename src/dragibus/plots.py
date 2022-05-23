@@ -44,7 +44,7 @@ def plot_transcript_length_density(features_stat,bin_size,title=""):
     return(fig)
 
 
-    
+
 
 def plot_cdna_length_histogram(transcripts,outname=""):
     h = sns.histplot({t.cdna_length for t in transcripts})
