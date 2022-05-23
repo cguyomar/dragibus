@@ -77,6 +77,7 @@ class Transcript(Feature):
         self.introns = []
         self.cdna_length = None
         self.transcript_length = None
+        self.polyA = None
 
     def compute_length(self):
         self.transcript_length = self.end - self.start + 1 # to check
@@ -89,7 +90,6 @@ class Transcript(Feature):
         self.start = min(self.start,e.start)
         self.end = min(self.end,e.end)
 
-    
     def sort_exons(self):
         if len(self.exons) > 0:
             self.exons.sort(key=lambda x:x.start)

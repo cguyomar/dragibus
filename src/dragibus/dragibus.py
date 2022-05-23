@@ -9,9 +9,9 @@ from dragibus.stats import collect_stat
 def main():
 
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument("gtf", help="Input annotation file")
-    parser.add_argument("fasta", help="Genome fasta file")
-    parser.add_argument("out", help="Output file")
+    parser.add_argument('--gtf', nargs='+', help='Input annotation file', required=True)
+    parser.add_argument("--fasta", help="Genome fasta file",required=True)
+    parser.add_argument("--out", help="Output file",required=True)
     parser.add_argument("--mode", dest='mode', help="Output format : markdown or html")
     # parser.add_argument("--out",dest='out_file')
     # parser.add_argument("--fasta",dest='fasta')
@@ -21,7 +21,7 @@ def main():
     # in_file = "small.gtf"
     # fasta = "sus_scrofa.fa"
     # in_file = "novel.gtf"
-    in_file = args.gtf
+    annotation_files = args.gtf
     fasta = args.fasta    
     out_file = args.out
     out_prefix,ext = os.path.splitext(out_file)
@@ -45,7 +45,6 @@ def main():
 
     hexamers = dragibus.scan_genome_for_polyA_motifs(fasta)
    
-    annotation_files = [in_file]
 
     genes = dict()
     transcripts = dict()
@@ -53,7 +52,7 @@ def main():
     introns = dict()
     for f in annotation_files:
         introns[f] = set()
-        genes[f],transcripts[f],exons[f] = dragibus.parse_gtf(in_file)
+        genes[f],transcripts[f],exons[f] = dragibus.parse_gtf(f)
         # Enrich transcripts with intron information
         dragibus.find_canonic_introns(transcripts[f],fasta)
         for t in transcripts[f].values():
