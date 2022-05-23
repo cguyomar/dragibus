@@ -48,6 +48,22 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.write(monoexonic_df.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
 
+
+    mdFile.new_header(level=2, title='Number of transcripts per gene')
+    mdFile.new_line()
+
+    nb_t_per_gene = collect_stat(genes,lambda g:len(g.transcripts))
+    df_nb_t_per_gene = discrete_feature_distribution(nb_t_per_gene)
+    print(df_nb_t_per_gene)
+    plot_nb_t_per_gene = plot_discrete_distribution(df_nb_t_per_gene)
+    if mode == "html":
+        html_nb_t_per_gene = plotly.offline.plot(plot_nb_t_per_gene, include_plotlyjs=False, output_type='div')
+        mdFile.new_paragraph(Html.paragraph(text=html_nb_t_per_gene),wrap_width=0)
+    elif mode == "markdown":
+        plot_nb_t_per_gene.write_image("ressources/nb_transcripts_per_gene.svg")
+        mdFile.new_paragraph(Html.image(path="ressources/nb_transcripts_per_gene.svg"))
+    mdFile.new_line()
+
     mdFile.new_header(level=2, title='Number of exons per transcript')
     mdFile.new_line()
 
@@ -77,7 +93,8 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.write("**Distribution by number of transcripts** ")
     mdFile.new_line("\n")
 
-    mdFile.write("Number of transcripts longer than n nt. \n")
+    mdFile.write("Number of transcripts longer than n nt.")
+    mdFile.new_line("\n")
     mdFile.write(df_transcript_length.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
     mdFile.new_line()
@@ -87,6 +104,7 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.new_line("\n")
 
     mdFile.write("Percentage of transcripts longer than n nt. \n")
+    mdFile.new_line("\n")
     mdFile.write(df_transcript_length_perc.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
 
@@ -112,6 +130,7 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.new_line("\n")
 
     mdFile.write("Number of cdnas longer than n nt. \n")
+    mdFile.new_line("\n")
     mdFile.write(df_cdna_length.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
     mdFile.new_line()
@@ -121,6 +140,7 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     mdFile.new_line("\n")
 
     mdFile.write("Percentage of cdnas longer than n nt. \n")
+    mdFile.new_line("\n")
     mdFile.write(df_cdna_length_perc.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
     # mdFile.new_line()
@@ -190,48 +210,48 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     if not skip_polya:
     #
     #  PolyA signature
-    # 
-    mdFile.new_line()
-    mdFile.new_header(level=2, title='Polyadenylation sites') 
-    mdFile.new_line()
+        # 
+        mdFile.new_line()
+        mdFile.new_header(level=2, title='Polyadenylation sites') 
+        mdFile.new_line()
 
-    # All transcripts
-    mdFile.write("**Presence of polyA sites for all transcripts** \n ")
+        # All transcripts
+        mdFile.write("**Presence of polyA sites for all transcripts** \n ")
 
-    polyA_stat = collect_stat(transcripts, lambda t : t.polyA) 
-    df_transcripts_polyA = binary_feature_distribution(polyA_stat,
-            rename={True:"PolyA site",
-                    False:"No polyA site",
-                    None:"NA"}
-    )
+        polyA_stat = collect_stat(transcripts, lambda t : t.polyA) 
+        df_transcripts_polyA = binary_feature_distribution(polyA_stat,
+                rename={True:"PolyA site",
+                        False:"No polyA site",
+                        None:"NA"}
+        )
 
-    mdFile.new_line()
-    mdFile.write(df_transcripts_polyA.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
-    mdFile.new_line()
-    mdFile.new_line()
-    
-    # Unique tts
-    mdFile.write("**Presence of polyA sites for unique transcription terminaison sites** \n ")
+        mdFile.new_line()
+        mdFile.write(df_transcripts_polyA.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
+        mdFile.new_line()
+        mdFile.new_line()
+        
+        # Unique tts
+        mdFile.write("**Presence of polyA sites for unique transcription terminaison sites** \n ")
 
-    get_tts = lambda t: (t.chr,t.end,t.strand) if t.strand=="+" else (t.chr,t.start,t.strand)
-    
-    transcripts_unique_tts = defaultdict(dict)
-    for f,transcripts_f in transcripts.items():
-        unique_tts = { get_tts(t) for t in transcripts_f.values() }
-        for id,t in transcripts_f.items():
-            tts = get_tts(t)
-            if tts in unique_tts:
-                transcripts_unique_tts[f][id] = t
-                unique_tts.remove(tts)
-    polyA_stat_unique = collect_stat(transcripts_unique_tts, lambda t : t.polyA) 
-    df_transcripts_polyA_unique = binary_feature_distribution(polyA_stat_unique,
-            rename={True:"PolyA site",
-                    False:"No polyA site",
-                    None:"NA"}
-    )
-    mdFile.new_line()
-    mdFile.write(df_transcripts_polyA_unique.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
-    mdFile.new_line()
+        get_tts = lambda t: (t.chr,t.end,t.strand) if t.strand=="+" else (t.chr,t.start,t.strand)
+        
+        transcripts_unique_tts = defaultdict(dict)
+        for f,transcripts_f in transcripts.items():
+            unique_tts = { get_tts(t) for t in transcripts_f.values() }
+            for id,t in transcripts_f.items():
+                tts = get_tts(t)
+                if tts in unique_tts:
+                    transcripts_unique_tts[f][id] = t
+                    unique_tts.remove(tts)
+        polyA_stat_unique = collect_stat(transcripts_unique_tts, lambda t : t.polyA) 
+        df_transcripts_polyA_unique = binary_feature_distribution(polyA_stat_unique,
+                rename={True:"PolyA site",
+                        False:"No polyA site",
+                        None:"NA"}
+        )
+        mdFile.new_line()
+        mdFile.write(df_transcripts_polyA_unique.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
+        mdFile.new_line()
     mdFile.new_line()
 
     mdFile.create_md_file()
