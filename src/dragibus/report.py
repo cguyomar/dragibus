@@ -189,6 +189,7 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
                     False:"No polyA site",
                     None:"NA"}
     )
+
     mdFile.new_line()
     mdFile.write(df_transcripts_polyA.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()

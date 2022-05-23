@@ -8,7 +8,7 @@ from dragibus.stats import collect_stat
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='Quality control of annotation files')
     parser.add_argument('--gtf', nargs='+', help='Input annotation file', required=True)
     parser.add_argument("--fasta", help="Genome fasta file",required=True)
     parser.add_argument("--out", help="Output file",required=True)
