@@ -11,7 +11,7 @@ from dragibus.stats import *
 
 
 
-def make_report(genes,transcripts,exons,introns,mode,out_prefix):
+def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
 
     if not os.path.exists('ressources'):
         os.mkdir("ressources")
@@ -173,6 +173,7 @@ def make_report(genes,transcripts,exons,introns,mode,out_prefix):
 
     mdFile.write(df_intron_canonicity.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
 
+    if not skip_polya:
     #
     #  PolyA signature
     # 
