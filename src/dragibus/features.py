@@ -185,10 +185,10 @@ def find_canonic_introns(transcripts,fasta):
         for line in res:
             if line.startswith(">"):
                 header = line[1:].split("::")[0]
-                id = "_".join(header.split("_")[0:3])
-                if header.split("_")[3].startswith('donor'):
+                id = "_".join(header.split("_")[:-1])
+                if header.split("_")[-1].startswith('donor'):
                     dir = "donor"
-                elif header.split("_")[3].startswith('acceptor'):
+                elif header.split("_")[-1].startswith('acceptor'):
                     dir = "acceptor"
             else:
                 if dir == "donor":
