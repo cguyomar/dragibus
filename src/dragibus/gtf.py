@@ -125,16 +125,8 @@ def parse_gtf(in_file,errors):
             print(e)
 
     # Find and remove transcripts/exons that are orphans due to syntax checking
-    print(len(transcripts))
     transcripts = {t_id:t for t_id,t in transcripts.items() if t.gene_id in genes.keys()}
-    print(len(transcripts))
-    print(len(exons))
-
     exons = {e for e in exons if e.gene_id in genes.keys() and e.transcript_id in transcripts.keys()}
-    print(len(exons))
-
-      
-
 
     return(genes,transcripts,exons,errors)
 

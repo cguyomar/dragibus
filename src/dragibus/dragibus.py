@@ -58,9 +58,10 @@ def main():
     transcripts = dict()
     exons = dict()
     introns = dict()
+    errors = dict()
     for f in annotation_files:
         introns[f] = set()
-        genes[f],transcripts[f],exons[f],errors = dragibus.parse_gtf(f,errors)
+        genes[f],transcripts[f],exons[f],errors[f] = dragibus.parse_gtf(f,errors)
         # Enrich transcripts with intron information
         dragibus.find_canonic_introns(transcripts[f],fasta)
         for t in transcripts[f].values():

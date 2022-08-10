@@ -31,11 +31,9 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
     #
     mdFile.new_header(level=1, title='Parsing errors')
 
-    errors_df = pandas.DataFrame.from_dict({
-        "Error type":errors.keys(),
-        "Count":errors.values()
-        },orient='columns')
-    mdFile.write(errors_df.to_markdown(index=False),wrap_width=0)
+    errors_df = pandas.DataFrame.from_dict(errors)
+    mdFile.write(errors_df.to_markdown(index=True),wrap_width=0)
+    mdFile.new_line()
 
 
     #
