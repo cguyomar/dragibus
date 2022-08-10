@@ -60,17 +60,18 @@ def main():
     introns = dict()
     errors = dict()
     for f in annotation_files:
-        introns[f] = set()
-        genes[f],transcripts[f],exons[f],errors[f] = dragibus.parse_gtf(f,errors)
+        file_name = os.path.basename(f)
+        introns[file_name] = set()
+        genes[file_name],transcripts[file_name],exons[file_name],errors[file_name] = dragibus.parse_gtf(f,errors)
         # Enrich transcripts with intron information
-        dragibus.find_canonic_introns(transcripts[f],fasta)
-        for t in transcripts[f].values():
+        dragibus.find_canonic_introns(transcripts[file_name],fasta)
+        for t in transcripts[file_name].values():
             for i in t.introns:
-                introns[f].add(i)
+                introns[file_name].add(i)
 
     if not skip_polya:
         for f in annotation_files:
-            dragibus.find_transcripts_with_polya_signal(transcripts[f],hexamers,10)
+            dragibus.find_transcripts_with_polya_signal(transcripts[file_name],hexamers,10)
     
     dragibus.make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefix)
 
