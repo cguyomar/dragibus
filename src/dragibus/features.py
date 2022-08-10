@@ -1,5 +1,37 @@
 # from dragibus.utils import get_sequence
+from multiprocessing.dummy import Value
 import pybedtools
+import logging
+
+class DragibusException(Exception):
+    def __init__(self,key="Other dragibus exception",message=""):
+        super().__init__(message)
+        self.key = key
+
+class WrongChromosomeExonError(DragibusException):
+    def __init__(self,message="Trying to add new exon on different chromosome - skipping"):
+        super().__init__("Exon with incorrect chromosome",message)
+
+class WrongChromosomeTranscriptError(DragibusException):
+    def __init__(self,message="Trying to add new transcript on different chromosome - skipping"):
+        super().__init__("Transcript with incorrect chromosome",message)
+
+class WrongStrandTranscriptError(DragibusException):
+    def __init__(self,message="Trying to add new transcript with different strand - skipping"):
+        super().__init__("Transcript with incorrect strand",message)
+
+class WrongStrandExonError(DragibusException):
+    def __init__(self,message="Trying to add new exon with different strand - skipping"):
+        super().__init__("Exon with incorrect strand",message)
+
+class InvalidCoordinatesError(DragibusException):
+    # Coordinates are not int
+    def __init__(self):
+        super().__init__("Entry with invalid coordinates","Invalid coordinates - skipping feature")
+
+class InvalidStrandError(DragibusException):
+
+    pass
 
 def read_attributes(attributes, quote_char='\"',missing_value=""):
     # potential tip to reduce memory usage using interning : 
@@ -34,13 +66,24 @@ class Feature:
         self.chr = fixed_fields[0]
         self.source = fixed_fields[1]
         self.type = fixed_fields[2]
-        self.start = int(fixed_fields[3])
-        self.end = int(fixed_fields[4])
+        try:
+            self.start = int(fixed_fields[3])
+            self.end = int(fixed_fields[4])
+        except ValueError:
+            raise(InvalidCoordinatesError)
         self.score = fixed_fields[5]
         self.strand = fixed_fields[6]
         self.frame = fixed_fields[7]
         self.attributes = attributes
         self.length = self.end - self.start + 1
+
+        try:
+            if self.strand != '+' and self.strand != '-':
+                raise(InvalidStrandError)
+        except InvalidCoordinatesError as e:
+            raise e
+        except InvalidStrandError as e:
+            raise e
 
 class Gene(Feature):
 
@@ -50,14 +93,20 @@ class Gene(Feature):
         else:
             assert isinstance(attributes,dict)
 
-        super(Gene, self).__init__(fixed_fields,attributes)
+        try:
+            super(Gene, self).__init__(fixed_fields,attributes)
+        except Exception as e:
+            raise(e)
         self.id = self.attributes['gene_id']
         self.transcripts = []
     
     def add_transcript(self,t):
         self.transcripts.append(t)
-        assert t.chr == self.chr
-        assert t.strand == self.strand
+
+        if t.chr != self.chr:
+            raise  WrongChromosomeTranscriptError()
+        if t.strand != self.strand:
+            raise WrongStrandTranscriptError()
 
         self.start = min(t.start,self.start)
         self.end = max(t.end,self.end)
@@ -70,7 +119,11 @@ class Transcript(Feature):
         else:
             assert isinstance(attributes,dict)
 
-        super(Transcript, self).__init__(fixed_fields,attributes)
+        try:
+            super(Transcript, self).__init__(fixed_fields,attributes)
+        except Exception as e:
+            raise(e)
+
         self.id = self.attributes['transcript_id']
         self.gene_id = self.attributes['gene_id']
         self.exons = []
@@ -83,10 +136,13 @@ class Transcript(Feature):
         self.transcript_length = self.end - self.start + 1 # to check
 
     def add_exon(self,e):
-        self.exons.append(e)
-        assert e.chr == self.chr
-        assert e.strand == self.strand
         # assert e.start >= self.end or e.end <= self.start  # Check that the transcript does not already covers the exons
+        if e.chr != self.chr:
+            raise WrongChromosomeExonError()
+        if e.strand != self.strand:
+            raise WrongStrandExonError()
+
+        self.exons.append(e)
         self.start = min(self.start,e.start)
         self.end = min(self.end,e.end)
 
@@ -113,7 +169,10 @@ class Transcript(Feature):
 
             attributes = {k:v for (k,v) in self.attributes.items() if k != 'exon_number'}
 
-            f = Intron([self.chr,self.source,"intron",start,end,self.score,self.strand,self.frame],attributes)
+            try:
+                f = Intron([self.chr,self.source,"intron",start,end,self.score,self.strand,self.frame],attributes)
+            except Exception as e:
+                raise(e)
 
             self.introns.append(f)
 
@@ -129,7 +188,11 @@ class Exon(Feature):
         else:
             assert isinstance(attributes,dict)
 
-        super(Exon, self).__init__(fixed_fields,attributes)
+        try:
+            super(Exon, self).__init__(fixed_fields,attributes)
+        except Exception as e:
+            raise e
+        
         self.exon_number =  self.attributes['exon_number']
         self.gene_id = self.attributes['gene_id']
         self.transcript_id = self.attributes['transcript_id']
@@ -141,7 +204,10 @@ class Intron(Feature):
         else:
             assert isinstance(attributes,dict)
 
-        super(Intron, self).__init__(fixed_fields,attributes)
+        try:
+            super(Intron, self).__init__(fixed_fields,attributes)
+        except Exception as e:
+            raise e
         
         self.id = "_".join([self.chr,str(self.start),str(self.end)])
         self.canonic = None

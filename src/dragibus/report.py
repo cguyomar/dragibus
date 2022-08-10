@@ -54,7 +54,7 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
 
     nb_t_per_gene = collect_stat(genes,lambda g:len(g.transcripts))
     df_nb_t_per_gene = discrete_feature_distribution(nb_t_per_gene)
-    print(df_nb_t_per_gene)
+    # print(df_nb_t_per_gene)
     plot_nb_t_per_gene = plot_discrete_distribution(df_nb_t_per_gene)
     if mode == "html":
         html_nb_t_per_gene = plotly.offline.plot(plot_nb_t_per_gene, include_plotlyjs=False, output_type='div')

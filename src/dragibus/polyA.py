@@ -2,6 +2,7 @@
 import importlib_resources
 import subprocess
 import pybedtools
+import logging
 from pathlib import Path
 
 
@@ -17,7 +18,7 @@ def scan_genome_for_polyA_motifs(fasta):
     outfile_name = stem + '_polya_hexamers.bed'
 
     if Path(outfile_name).is_file():
-        print("Genome has already been searched for hexamers")
+        logging.info("Genome has already been searched for hexamers")
     else:
         with importlib_resources.as_file(motif_file) as motif:
             homer_command = ['scanMotifGenomeWide.pl',motif,fasta,'-keepAll','-bed']

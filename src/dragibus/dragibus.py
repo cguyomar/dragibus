@@ -2,11 +2,16 @@
 
 import argparse
 import os
+import logging
+from collections import defaultdict
 
 import dragibus
 from dragibus.stats import collect_stat
 
 def main():
+
+    logging.basicConfig(level=logging.INFO)
+    logging.info('Starting Dragibus')
 
     parser = argparse.ArgumentParser(description='Quality control of annotation files')
     parser.add_argument('--gtf', nargs='+', help='Input annotation file', required=True)
@@ -48,14 +53,14 @@ def main():
     if not skip_polya:
         hexamers = dragibus.scan_genome_for_polyA_motifs(fasta)
    
-
+    errors = defaultdict(int)
     genes = dict()
     transcripts = dict()
     exons = dict()
     introns = dict()
     for f in annotation_files:
         introns[f] = set()
-        genes[f],transcripts[f],exons[f] = dragibus.parse_gtf(f)
+        genes[f],transcripts[f],exons[f],errors = dragibus.parse_gtf(f,errors)
         # Enrich transcripts with intron information
         dragibus.find_canonic_introns(transcripts[f],fasta)
         for t in transcripts[f].values():
