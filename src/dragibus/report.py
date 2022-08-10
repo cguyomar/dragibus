@@ -11,11 +11,10 @@ from dragibus.stats import *
 
 
 
-def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
+def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefix):
 
     if not os.path.exists('ressources'):
         os.mkdir("ressources")
-
 
     #
     #  Create markdown
@@ -26,6 +25,18 @@ def make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix):
     # Import plotly dependency
     if mode=="html":
         mdFile.write('<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>')
+
+    #
+    #  Parsing errors
+    #
+    mdFile.new_header(level=1, title='Parsing errors')
+
+    errors_df = pandas.DataFrame.from_dict({
+        "Error type":errors.keys(),
+        "Count":errors.values()
+        },orient='columns')
+    mdFile.write(errors_df.to_markdown(index=False),wrap_width=0)
+
 
     #
     #  Statistics for the whole file

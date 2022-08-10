@@ -71,7 +71,7 @@ def main():
         for f in annotation_files:
             dragibus.find_transcripts_with_polya_signal(transcripts[f],hexamers,10)
     
-    dragibus.make_report(genes,transcripts,exons,introns,mode,skip_polya,out_prefix)
+    dragibus.make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefix)
 
 
 

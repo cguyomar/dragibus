@@ -1,4 +1,6 @@
 import logging
+from collections import defaultdict
+
 
 from dragibus.features import *
 
@@ -12,6 +14,8 @@ def parse_gtf(in_file,errors):
     exons = set()
 
     logging.info('Parsing the gtf')
+
+    errors = defaultdict(int)
 
     # Features other than exons preexisting in the input file
     infile_transcripts = dict()
@@ -45,6 +49,7 @@ def parse_gtf(in_file,errors):
                         except DragibusException as e:
                             logging.warning(e)
                             errors[e.key] += 1
+                            
                             continue
 
                     else:
@@ -63,8 +68,10 @@ def parse_gtf(in_file,errors):
                             genes[t.gene_id].add_transcript(transcripts[f.transcript_id])
                         except WrongChromosomeTranscriptError as e:
                             logging.warning(e)
+                            errors[e.key] += 1
                         except WrongStrandTranscriptError as e:
                             logging.warning(e)
+                            errors[e.key] += 1
 
                     exons.add(f)
 
