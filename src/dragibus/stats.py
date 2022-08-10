@@ -101,7 +101,9 @@ def binary_feature_distribution(stat_by_fname,rename={True:"True",False:"False",
             rename[False]+" (%)",
             rename[None])
     )
-    # Todo : manage key error
+    # Drop NA columns if not found
+    if sum(df[rename[None]].notna())==0:
+        df.drop(axis=1,labels=rename[None],inplace=True)
 
     df.iloc[:,1] = df.iloc[:,1].map("{:.2%}".format)
     df.iloc[:,3] = df.iloc[:,3].map("{:.2%}".format)
