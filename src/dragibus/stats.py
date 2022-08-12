@@ -1,5 +1,7 @@
 import pandas as pd
 from collections import Counter
+import numpy as np
+from itertools import chain
 
 
 
@@ -66,6 +68,14 @@ def discrete_feature_distribution(stat_by_fname):
         # Name column
         df.set_axis([*df.columns[:-1], file], axis=1, inplace=True)
     df.sort_index(inplace=True)
+    return(df)
+
+def feature_long_table(stat_by_fname):
+    # Return long format tab
+    df = pd.DataFrame({
+        'file' : np.repeat(list(stat_by_fname.keys()), [len(v) for k, v in stat_by_fname.items()]),
+        'value' : list(chain.from_iterable(stat_by_fname.values())), 
+    })
     return(df)
 
 

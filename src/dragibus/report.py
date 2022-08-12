@@ -62,9 +62,13 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
     mdFile.new_line()
 
     nb_t_per_gene = collect_stat(genes,lambda g:len(g.transcripts))
-    df_nb_t_per_gene = discrete_feature_distribution(nb_t_per_gene)
-    # print(df_nb_t_per_gene)
-    plot_nb_t_per_gene = plot_discrete_distribution(df_nb_t_per_gene)
+    df_nb_t_per_gene = feature_long_table(nb_t_per_gene)
+    
+    # Find 95% quantile to limit plot
+    up_limit = max([np.quantile(nb_t_per_gene[f],0.95) for f in nb_t_per_gene.keys()])
+    print(up_limit)
+
+    plot_nb_t_per_gene =  plot_violin_distribution(df_nb_t_per_gene,max=up_limit)
     if mode == "html":
         html_nb_t_per_gene = plotly.offline.plot(plot_nb_t_per_gene, include_plotlyjs=False, output_type='div')
         mdFile.new_paragraph(Html.paragraph(text=html_nb_t_per_gene),wrap_width=0)
@@ -77,8 +81,9 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
     mdFile.new_line()
 
     nb_e_per_transcript = collect_stat(transcripts,lambda t:len(t.exons))
-    df_nb_e_per_t = discrete_feature_distribution(nb_e_per_transcript)
-    plot_nb_e_per_t = plot_discrete_distribution(df_nb_e_per_t)
+    df_nb_e_per_t = feature_long_table(nb_e_per_transcript)
+    up_limit = max([np.quantile(nb_e_per_transcript[f],0.95) for f in nb_e_per_transcript.keys()])
+    plot_nb_e_per_t = plot_violin_distribution(df_nb_e_per_t,up_limit)
     if mode == "html":
         html_nb_e_per_t = plotly.offline.plot(plot_nb_e_per_t, include_plotlyjs=False, output_type='div')
         mdFile.new_paragraph(Html.paragraph(text=html_nb_e_per_t),wrap_width=0)
@@ -91,7 +96,7 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
 
 
     mdFile.new_header(level=3, title='Transcripts size distribution')
-    length_breaks = [0,50000,100000,500000,1000000,2000000]
+    length_breaks = [50000,100000,500000,1000000,2000000]
 
     transcript_length_stat = collect_stat(transcripts,lambda t:t.transcript_length)
     
@@ -119,8 +124,13 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
 
     #  Non interactive plot - for pdf/md output
     # plot_transcript_length_histogram(transcripts.values(),"ressources/transcript_length_histogram.svg")
+    up_limit = max([np.quantile(transcript_length_stat[f],0.95) for f in transcript_length_stat.keys()])
+    bin_width = int(up_limit/30)
+    print(bin_width)
+    # fig_transcript_size = plot_transcript_length_density(transcript_length_stat,bin_width,up_limit,"Distribution of transcript size")
+    df = feature_long_table(transcript_length_stat)
+    fig_transcript_size = plot_histogram_distribution(df,max=up_limit,title="Distribution of transcript size",log=False)
 
-    fig_transcript_size = plot_transcript_length_density(transcript_length_stat,5000,"Distribution of transcript size")
     if mode == "html":
         html_transcript_size = plotly.offline.plot(fig_transcript_size, include_plotlyjs=False, output_type='div')
         mdFile.new_paragraph(Html.paragraph(text=html_transcript_size),wrap_width=0)
@@ -132,7 +142,10 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
     mdFile.new_header(level=3, title='Transcripts cdna length distribution')
 
     cdna_length_stat = collect_stat(transcripts,lambda t:t.cdna_length)
-    df_cdna_length, df_cdna_length_perc = numeric_feature_distribution(cdna_length_stat,[0,2000,5000,10000,50000,100000])
+    up_limit_cdna_length = max([np.quantile(cdna_length_stat[f],0.95) for f in cdna_length_stat.keys()])
+    bin_width = int(up_limit/30)
+    
+    df_cdna_length, df_cdna_length_perc = numeric_feature_distribution(cdna_length_stat,[2000,5000,10000,50000,100000])
 
     mdFile.new_line("\n")
     mdFile.write("**Distribution by number of transcripts** ")
@@ -153,8 +166,11 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
     mdFile.write(df_cdna_length_perc.to_markdown(index=True, stralign='left',numalign="left"),wrap_width=0)
     mdFile.new_line()
     # mdFile.new_line()
-
-    fig_cdna_size = plot_transcript_length_density(cdna_length_stat,500,"Distribution of cdna length size")
+    print(bin_width)
+    print(up_limit)
+    # fig_cdna_size = plot_transcript_length_density(cdna_length_stat,bin_width,up_limit,"Distribution of cdna length size")
+    df = feature_long_table(cdna_length_stat)
+    fig_cdna_size = plot_histogram_distribution(df,max=up_limit_cdna_length,title="Distribution of cdna length size",log=False)
 
     if mode == "html":
         html_cdna_size = plotly.offline.plot(fig_cdna_size, include_plotlyjs=False, output_type='div')

@@ -36,27 +36,32 @@ def plot_nb_exons_per_transcript(transcripts,outname=""):
 #         plt.savefig(outname)
 #         plt.cla()
 
-def plot_transcript_length_density(features_stat,bin_size,title=""):
-    # input : result of collect_stat function with transcript_length
+def plot_transcript_length_density(features_stat,bin_size,max_x,title=""):
+    # input : result of collect_stat function with transcript_lengthfeatures_stat
     fnames, lengths = zip(*features_stat.items())
 
-    fig = ff.create_distplot(lengths, fnames, show_hist=True, show_rug=False, bin_size=bin_size)
+    fig = ff.create_distplot(lengths, fnames, show_hist=True, show_rug=False, bin_size=bin_size,histnorm="probability")
+    
     fig.layout.update(title=title)
+    fig.update_layout(xaxis_range=[0,max_x])
     return(fig)
 
+def plot_histogram_distribution(df,max=1000,title="",log=False):
+    fig = px.histogram(df,x="value",color="file",marginal="violin",barmode="overlay",histnorm="percent",range_x=[0,max])
+    # fig.data[0].update()
+    fig.layout.update(title=title)
+
+    return(fig)
 
 def plot_discrete_distribution(df,max=10,title=""):
     fig = px.bar(df,barmode='group')
     fig.layout.update(title=title)
     return(fig)
 
-def plot_cdna_length_histogram(transcripts,outname=""):
-    h = sns.histplot({t.cdna_length for t in transcripts})
-    h.set_title("Histogram of cdna length distribution")
-    h.set_xlabel("Cdna length")
-    # h.set_xscale('symlog')
-    if outname=="":
-        plt.show()
-    else:
-        plt.savefig(outname)
-        plt.cla()
+def plot_violin_distribution(df,max,title="",log=False):
+    fig = px.violin(df,box=True,log_y=log,points="outliers",y="value",x="file")
+    fig.data[0].update(span=[0,int(max)])
+    fig.layout.update(title=title)
+
+    return(fig)
+
