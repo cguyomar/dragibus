@@ -84,15 +84,16 @@ def numeric_feature_distribution(stat_by_fname,breaks):
     # Compute distribution (nb and perc) of property accessed by fun following breaks
 
     res = dict()
-    res_perc = dict()
+    # res_perc = dict()
     for file in stat_by_fname.keys():
         res[file] = [len([f for f in stat_by_fname[file] if f >= l]) for l in breaks]
-        res_perc[file] = [r / len(stat_by_fname[file]) for r in res[file]]
+        res[file+" (%)"] = map("{:.2%}".format,[r / len(stat_by_fname[file]) for r in res[file]])
     df = pd.DataFrame(res,index=breaks)
-    df_perc = pd.DataFrame(res_perc,index=breaks)
-    df_perc = df_perc.applymap("{:.2%}".format)
+    # df_perc = pd.DataFrame(res_perc,index=breaks)
+    # df_perc = df_perc.applymap("{:.2%}".format)
+    # print(df)
 
-    return(df,df_perc)
+    return(df)
 
 def binary_feature_distribution(stat_by_fname,rename={True:"True",False:"False",None:"None"}):
     res = dict()

@@ -21,7 +21,7 @@ def main():
     # parser.add_argument("--out",dest='out_file')
     # parser.add_argument("--fasta",dest='fasta')
 
-    skip_polya=False
+    skip_polya=True
 
     args = parser.parse_args()
 
