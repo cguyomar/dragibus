@@ -7,6 +7,7 @@ from collections import defaultdict
 
 import dragibus
 from dragibus.stats import collect_stat
+from dragibus.sections import *
 
 def main():
 
@@ -21,7 +22,7 @@ def main():
     # parser.add_argument("--out",dest='out_file')
     # parser.add_argument("--fasta",dest='fasta')
 
-    skip_polya=True
+    skip_polya=False
 
     args = parser.parse_args()
 

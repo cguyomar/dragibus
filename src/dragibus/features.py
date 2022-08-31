@@ -24,6 +24,11 @@ class WrongStrandExonError(DragibusException):
     def __init__(self,message="Trying to add new exon with different strand - skipping"):
         super().__init__("Exon with incorrect strand",message)
 
+class WrongExonNumbering(DragibusException):
+    def __init__(self,message="exon_number attribute does not match with the one infered by Dragibus - renumbering"):
+        super().__init__("Incorrect exon numbering",message)
+    pass
+
 class InvalidCoordinatesError(DragibusException):
     # Coordinates are not int
     def __init__(self):
@@ -147,17 +152,32 @@ class Transcript(Feature):
         self.end = min(self.end,e.end)
 
     def sort_exons(self):
+        wrong_numbering = False
         if len(self.exons) > 0:
             self.exons.sort(key=lambda x:x.start)
             self.start = self.exons[0].start
             self.end = self.exons[-1].end
 
+            # Add exon number attribute if it's not present in the gtf
+            for i,e in enumerate(self.exons):
+                if not hasattr(e,'exon_number'):
+                    e.exon_number = i+1
+                else:
+                    # Raise exception is dragibus has a different exon numbering
+                    # Can happen especially when exons where ignored of of incorrect strand or other reason
+                    if e.exon_number != i+1:
+                        wrong_numbering = True
+                        e.exon_number = i+1
+                                       
             # Mark internal exons
             for i,e in enumerate(self.exons):
                 if i==0 or i==(len(self.exons)-1):
                     e.is_internal = False
                 else:
                     e.is_internal = True
+
+        if wrong_numbering:
+            raise WrongExonNumbering
 
     def sort_introns(self):
         self.introns.sort(key=lambda x:x.start)
@@ -193,7 +213,8 @@ class Exon(Feature):
         except Exception as e:
             raise e
         
-        self.exon_number =  self.attributes['exon_number']
+        if 'exon_number' in self.attributes.keys():
+            self.exon_number =  int(self.attributes['exon_number'])
         self.gene_id = self.attributes['gene_id']
         self.transcript_id = self.attributes['transcript_id']
 

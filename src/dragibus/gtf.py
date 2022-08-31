@@ -105,7 +105,12 @@ def parse_gtf(in_file,errors):
 
     # Sort exons for each transcript
     for t in transcripts.values():
-        t.sort_exons()
+        try:
+            t.sort_exons()
+        except DragibusException as e:
+            logging.warning(e)
+            errors[e.key] += 1
+            continue
 
     # # Assign transcripts to genes
     # for t in transcripts.values():
