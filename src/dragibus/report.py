@@ -150,7 +150,7 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
                 'pandoc',
                 '-s',
                 '-c',
-                'pandoc.css',
+                'http://genoweb.toulouse.inra.fr/~cguyomar/dragibus/pandoc.css',
                 '--from',
                 'markdown-markdown_in_html_blocks+raw_html',
                 '-o',
