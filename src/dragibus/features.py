@@ -183,7 +183,7 @@ class Transcript(Feature):
         self.introns.sort(key=lambda x:x.start)
 
     def add_introns(self):
-        for i in range(1,len(self.exons)-1):
+        for i in range(0,len(self.exons)-1):
             start = self.exons[i].end + 1
             end = self.exons[i+1].start - 1
 
@@ -198,7 +198,7 @@ class Transcript(Feature):
 
     def compute_cdna_length(self):
         if not self.cdna_length:
-            self.cdna_length = sum({e.end - e.start for e in self.exons})
+            self.cdna_length = sum([e.end - e.start + 1 for e in self.exons])
 
 class Exon(Feature):
 
@@ -230,7 +230,7 @@ class Intron(Feature):
         except Exception as e:
             raise e
         
-        self.id = "_".join([self.chr,str(self.start),str(self.end)])
+        self.id = "_".join([self.chr,str(self.start),str(self.end),str(self.strand)])
         self.canonic = None
 
     def get_donor_acceptor_coords(self):
@@ -246,53 +246,71 @@ def find_canonic_introns(transcripts,fasta):
     nb_introns = 0
     dimer_coords = set()
 
-    # Collect the coordinates of donor / acceptor sequences for each intron
-    for t in transcripts.values():
-        for i in t.introns:
-            
-            nb_introns += 1
-            i_id = i.id
-            # print(nb_introns)
-            coords = i.get_donor_acceptor_coords()
-            # dimer_coords.add((i.chr,coords[0][0],coords[0][1],i_id + "_donor",0,i.strand))
-            # dimer_coords.add((i.chr,coords[1][0],coords[1][1],i_id + "_acceptor",0,i.strand))
-            # if i.id == "2_67875_68406":
-            # print((i.chr,coords[0][0],coords[0][1],i_id + "_donor",0,i.strand))
-            dimer_coords.add((i.chr,coords[0][0],coords[0][1],i_id + "_donor",0,i.strand))
-            dimer_coords.add((i.chr,coords[1][0],coords[1][1],i_id + "_acceptor",0,i.strand))
+    with(open("canonic_introns_dragibus.txt",'w')) as outf:
+        with(open("noncanonic_introns_dragibus.txt",'w')) as outf2:
+            # Collect the coordinates of donor / acceptor sequences for each intron
+            for t in transcripts.values():
+                # print(t.strand)
+                # print(t.id)
+                for i in t.introns:
+                    # print("i :"+i.strand)                    
+                    
+                    nb_introns += 1
+                    i_id = i.id
+                    # print(nb_introns)
+                    coords = i.get_donor_acceptor_coords()
+                    # dimer_coords.add((i.chr,coords[0][0],coords[0][1],i_id + "_donor",0,i.strand))
+                    # dimer_coords.add((i.chr,coords[1][0],coords[1][1],i_id + "_acceptor",0,i.strand))
+                    # if i.id == "2_67875_68406":
+                    # print((i.chr,coords[0][0],coords[0][1],i_id + "_donor",0,i.strand))
+                    dimer_coords.add((i.chr,coords[0][0],coords[0][1],i_id + "_donor",0,i.strand))
+                    dimer_coords.add((i.chr,coords[1][0],coords[1][1],i_id + "_acceptor",0,i.strand))
 
-    # Get sequence for each dimer using bedtools
-    bed = pybedtools.BedTool(list(dimer_coords))
-    fa = bed.sequence(fi=fasta,s=True,name=True).seqfn
+                    # if i.id=="12_5429406_5429503":
+                    #     print((i.chr,coords[0][0],coords[0][1],i_id + "_donor",0,i.strand))
+                    #     print((i.chr,coords[1][0],coords[1][1],i_id + "_acceptor",0,i.strand))
 
-    donor_seq = dict() # dict intron_id -> str
-    acceptor_seq = dict()
+            # Get sequence for each dimer using bedtools
+            bed = pybedtools.BedTool(list(dimer_coords))
+            # print(bed)
+            fa = bed.sequence(fi=fasta,s=True,name=True).seqfn
 
-    with open(fa) as res:
-        for line in res:
-            if line.startswith(">"):
-                header = line[1:].split("::")[0]
-                id = "_".join(header.split("_")[:-1])
-                if header.split("_")[-1].startswith('donor'):
-                    dir = "donor"
-                elif header.split("_")[-1].startswith('acceptor'):
-                    dir = "acceptor"
-            else:
-                if dir == "donor":
-                    donor_seq[id] = line.strip().upper()
-                elif dir == "acceptor":
-                    acceptor_seq[id] = line.strip().upper()
-                id = dir = ""
-    # Establish canonicity
-    a=0
-    for t in transcripts.values():
-        for i in t.introns:
-            a += 1 
-            if (acceptor_seq[i.id],donor_seq[i.id]) in (("AG","GT"),("AG","GC"),("AC","AT")):
-                i.canonic=True
-            else:
-                i.canonic=False
+            donor_seq = dict() # dict intron_id -> str
+            acceptor_seq = dict()
 
+            with open(fa) as res:
+                for line in res:
+                    if line.startswith(">"):
+                        header = line[1:].split("::")[0]
+                        id = "_".join(header.split("_")[:-1])
+                        if header.split("_")[-1].startswith('donor'):
+                            dir = "donor"
+                        elif header.split("_")[-1].startswith('acceptor'):
+                            dir = "acceptor"
+                    else:
+                        if dir == "donor":
+                            donor_seq[id] = line.strip().upper()
+                        elif dir == "acceptor":
+                            acceptor_seq[id] = line.strip().upper()
+                        id = dir = ""
+            # print(len(donor_seq))
+            # Establish canonicity
+            a=0
+            for t in transcripts.values():
+                for i in t.introns:
+                    a += 1
+
+                    if (acceptor_seq[i.id],donor_seq[i.id]) in (("AG","GT"),("AG","GC"),("AC","AT")):
+                        i.canonic=True
+                        outf.write(" ".join([i.chr,str(i.start),str(i.end),'"'+t.id+'";'])+"\n")
+                    else:
+                        i.canonic=False
+                        outf2.write(" ".join([i.chr,str(i.start),str(i.end),'"'+t.id+'";'])+"\n")
+                    # if i.start == 5429406 and i.end == 5429503:
+                    #     print((acceptor_seq[i.id],donor_seq[i.id]))
+                    #     print(i.canonic)
+                    #     print(i.id)
+                    #     print(i.strand)
 
 
 

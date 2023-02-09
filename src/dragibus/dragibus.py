@@ -73,7 +73,7 @@ def main():
     if not skip_polya:
         for f in annotation_files:
             file_name = os.path.basename(f)
-            dragibus.find_transcripts_with_polya_signal(transcripts[file_name],hexamers,10)
+            dragibus.find_transcripts_with_polya_signal(transcripts[file_name],hexamers,50)
     
     dragibus.make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefix)
 

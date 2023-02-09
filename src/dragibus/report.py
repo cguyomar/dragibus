@@ -54,7 +54,7 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
     mdFile.new_header(level=3, title='Transcripts with at least one internal exon larger than ' + str(thr_internal_exon_length) + " bp.")
     mdFile.new_line()
 
-    large_internal_exon_stat_by_transcript = collect_stat(transcripts,lambda t : None if len(t.exons) < 3  else max(e.length for e in t.exons[1:-1])>thr_internal_exon_length)
+    large_internal_exon_stat_by_transcript = collect_stat(transcripts,lambda t : None if len(t.exons) < 3  else max(e.length for e in t.exons[1:-1])>=thr_internal_exon_length)
     
     df_transcripts_by_internal_exon_length = binary_feature_distribution(large_internal_exon_stat_by_transcript,
             rename={True:"Larger than " + str(thr_internal_exon_length) + " bp.",
@@ -67,7 +67,7 @@ def make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefi
     mdFile.new_line("\n")
 
 
-    large_internal_exons_stat = collect_stat(exons, lambda e : e.length > thr_internal_exon_length if e.is_internal else None,"set") 
+    large_internal_exons_stat = collect_stat(exons, lambda e : e.length >= thr_internal_exon_length if e.is_internal else None,"set") 
     df_internal_exons_by_length = binary_feature_distribution(large_internal_exons_stat,
             rename={True:"Larger than " + str(thr_internal_exon_length) + " bp.",
                     False:"Smaller than " + str(thr_internal_exon_length) + " bp.",

@@ -43,7 +43,7 @@ def monoexonic_stats(transcripts_by_f):
     for f in files:
         transcripts = transcripts_by_f[f]
 
-        nb_monoexonic = len({t for t in transcripts.values() if len(t.introns)==1})
+        nb_monoexonic = len({t for t in transcripts.values() if len(t.exons)==1})
         res = [nb_monoexonic,
                 nb_monoexonic/len(transcripts),
                 len(transcripts) - nb_monoexonic,
