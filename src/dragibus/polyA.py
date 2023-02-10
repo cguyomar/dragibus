@@ -12,8 +12,7 @@ def scan_genome_for_polyA_motifs(fasta):
     hexamers = []
 
     pkg = importlib_resources.files("dragibus")
-    # motif_file = pkg / "assets" / "polyAhex.motif.profile.txt"
-    motif_file = "/home/cguyomar/Documents/projects/geneswitch/dragibus/tmp/toto"
+    motif_file = pkg / "assets" / "polyAhex.motif.profile.txt"
 
     stem = Path(fasta).stem
     outfile_name = stem + '_polya_hexamers.bed'
