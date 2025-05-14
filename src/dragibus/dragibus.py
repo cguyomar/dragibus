@@ -19,10 +19,9 @@ def main():
     parser.add_argument("--fasta", help="Genome fasta file",required=True)
     parser.add_argument("--out", help="Output file",required=True)
     parser.add_argument("--mode", dest='mode', help="Output format : markdown or html")
+    parser.add_argument("--skip_polya", help="Skip polyA tail analysis", required=False, action='store_true')
     # parser.add_argument("--out",dest='out_file')
     # parser.add_argument("--fasta",dest='fasta')
-
-    skip_polya=False
 
     args = parser.parse_args()
 
@@ -51,9 +50,9 @@ def main():
         ext=".html"
 
 
-    if not skip_polya:
+    if not args.skip_polya:
         hexamers = dragibus.scan_genome_for_polyA_motifs(fasta)
-   
+
     errors = defaultdict(int)
     genes = dict()
     transcripts = dict()
@@ -70,12 +69,12 @@ def main():
             for i in t.introns:
                 introns[file_name].add(i)
 
-    if not skip_polya:
+    if not args.skip_polya:
         for f in annotation_files:
             file_name = os.path.basename(f)
             dragibus.find_transcripts_with_polya_signal(transcripts[file_name],hexamers,50)
     
-    dragibus.make_report(genes,transcripts,exons,introns,errors,mode,skip_polya,out_prefix)
+    dragibus.make_report(genes, transcripts, exons, introns, errors, mode, args.skip_polya, out_prefix)
 
 
 
