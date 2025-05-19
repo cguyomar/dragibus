@@ -1,3 +1,20 @@
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools >= 77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "dragibus"
+version = "0.0.1"
+description = "A tool to evaluate gtf/gff annotation files"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "GPL-3.0-or-later"}
+authors = [
+  { name = "Cervin Guyomar", email = "cervin.guyomar@inrae.fr" }
+]
+dependencies = [
+   "pybedtools",
+]
+
+[project.scripts]
+dragibus = "dragibus.dragibus:main"
