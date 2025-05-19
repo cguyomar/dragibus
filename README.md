@@ -17,6 +17,23 @@ dragibus -h
 
 ```
 
+## Options
+
+`--write_gtf` will write a copy of all input annotation files with a `.dragibus.gtf` extension, with the following modifications:
+- New `gene` `transcript` of `intron` features if missing from input file 
+- New attributes : 
+
+| Tag                   | Value         | Features   | Description                                                             |
+|-----------------------|---------------|------------|-------------------------------------------------------------------------|
+| is_canonical          | True of False | intron     |                                                                         |
+| all_introns_canonical | True or False | transcript |                                                                         |
+| nexons                | Int           | transcript |                                                                         |
+| large_internal_exon   | True of False | transcript | Is there a >500nt internal exon? (NA for mono and biexonic transcripts) |
+| has_polyA_signal      | True of False | transcript |                                                                         |
+
+
+
+
 ## Usage : 
 
 ```

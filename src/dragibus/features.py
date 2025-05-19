@@ -63,7 +63,7 @@ def read_attributes(attributes, quote_char='\"',missing_value=""):
         raise Exception()
 
 def attributes_to_str(attributes):
-    return("; ".join([" ".join([k,'"'+v+'"']) for k,v in attributes.items()])+";")
+    return "; ".join([f'{k} "{str(v)}"' for k, v in attributes.items()]) + ";"
 
 class Feature:
 
@@ -151,6 +151,7 @@ class Transcript(Feature):
         self.cdna_length = None
         self.transcript_length = None
         self.polyA = None
+        self.attributes["n_exons"] = 0
 
     def compute_length(self):
         self.transcript_length = self.end - self.start + 1 # to check
@@ -165,6 +166,7 @@ class Transcript(Feature):
         self.exons.append(e)
         self.start = min(self.start,e.start)
         self.end = min(self.end,e.end)
+        self.attributes["n_exons"] += 1
 
     def sort_exons(self):
         wrong_numbering = False

@@ -18,6 +18,7 @@ def main():
     parser.add_argument('--gtf', nargs='+', help='Input annotation file', required=True)
     parser.add_argument("--fasta", help="Genome fasta file",required=True)
     parser.add_argument("--out", help="Output file",required=True)
+    parser.add_argument("--write_gtf", help="Write a new version of the input annotation with dragibus tags", action='store_true')
     parser.add_argument("--mode", dest='mode', help="Output format : markdown or html")
     parser.add_argument("--skip_polya", help="Skip polyA tail analysis", required=False, action='store_true')
     # parser.add_argument("--out",dest='out_file')
@@ -59,6 +60,11 @@ def main():
     exons = dict()
     introns = dict()
     errors = dict()
+
+
+    ###
+    ### Read features of input files
+    ###
     for f in annotation_files:
         file_name = os.path.basename(f)
         introns[file_name] = set()
@@ -69,27 +75,49 @@ def main():
             for i in t.introns:
                 introns[file_name].add(i)
 
+
+    ###
+    ### Compute metrics
+    ###
+
+    # polyA
     if not args.skip_polya:
         for f in annotation_files:
             file_name = os.path.basename(f)
             dragibus.find_transcripts_with_polya_signal(transcripts[file_name],hexamers,50)
-    
-    print("Rewrite annotation file")
+
+    # Large internal exons
     for f in annotation_files:
-        outfile = "newfile.gff"
-        with (open(outfile, 'w')) as outf:
-            for gene_id, gene in genes[file_name].items():
-                g = genes[file_name][gene_id]
-                outf.write(g.format())
-                for t in g.transcripts:
-                    outf.write(t.format())
-                    for e in t.exons:
-                        outf.write(e.format())
-                    for i in t.introns:
-                        outf.write(i.format())
+        file_name = os.path.basename(f)
+        for t in transcripts[file_name].values():
+            if int(t.attributes['n_exons']) > 2:
+                if True in [e.length > 500 and e.is_internal for e in t.exons]:
+                    t.attributes['has_long_internal_exon'] = 'True'
+                else:
+                    t.attributes['has_long_internal_exon'] = 'False'
 
 
-    # dragibus.make_report(genes, transcripts, exons, introns, errors, mode, args.skip_polya, out_prefix)
+    ###
+    ### Write output files
+    ###
+    if args.write_gtf:
+        print("Rewrite annotation file")
+        for f in annotation_files:
+            outfile = os.path.splitext(f)[0] + ".dragibus.gtf"
+            with (open(outfile, 'w')) as outf:
+                print(outfile)
+                for gene_id, gene in genes[file_name].items():
+                    g = genes[file_name][gene_id]
+                    outf.write(g.format())
+                    for t in g.transcripts:
+                        outf.write(t.format())
+                        for e in t.exons:
+                            outf.write(e.format())
+                        for i in t.introns:
+                            outf.write(i.format())
+
+
+    dragibus.make_report(genes, transcripts, exons, introns, errors, mode, args.skip_polya, out_prefix)
 
 
 

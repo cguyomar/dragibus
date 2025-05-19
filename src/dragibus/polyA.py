@@ -59,4 +59,5 @@ def find_transcripts_with_polya_signal(transcripts,hexamers,flank):
         transcripts_with_polyA.add(rec[3])
     for t_id in transcripts.keys():
         transcripts[t_id].polyA = t_id in transcripts_with_polyA
+        transcripts[t_id].attributes["has_polyA_signal"] = t_id in transcripts_with_polyA
 

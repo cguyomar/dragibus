@@ -76,7 +76,7 @@ def parse_gtf(in_file,errors):
                                 logging.warning(e)
                                 errors[e.key] += 1
 
-                    exons.add(f)
+                    #exons.add(f)
 
                 if line[2]=="transcript":
                     try:
@@ -115,6 +115,10 @@ def parse_gtf(in_file,errors):
             logging.warning(e)
             errors[e.key] += 1
             continue
+    
+    for t in transcripts.values():
+        for e in t.exons:
+            exons.add(e)
 
     # # Assign transcripts to genes
     # for t in transcripts.values():
