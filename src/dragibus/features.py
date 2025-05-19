@@ -25,7 +25,7 @@ class WrongStrandExonError(DragibusException):
         super().__init__("Exon with incorrect strand",message)
 
 class WrongExonNumbering(DragibusException):
-    def __init__(self,message="exon_number attribute does not match with the one infered by Dragibus - renumbering"):
+    def __init__(self,message="exon_number attribute does not match with the one inferred by Dragibus - renumbering"):
         super().__init__("Incorrect exon numbering",message)
     pass
 
@@ -89,6 +89,21 @@ class Feature:
             raise e
         except InvalidStrandError as e:
             raise e
+    
+    def format(self):
+        s = ("\t".join([
+            self.chr,
+            self.source,
+            self.type,
+            str(self.start),
+            str(self.end),
+            str(self.score),
+            self.strand,
+            self.frame,
+            attributes_to_str(self.attributes)
+        ]))
+        s+="\n"
+        return(s)
 
 class Gene(Feature):
 
@@ -302,15 +317,18 @@ def find_canonic_introns(transcripts,fasta):
 
                     if (acceptor_seq[i.id],donor_seq[i.id]) in (("AG","GT"),("AG","GC"),("AC","AT")):
                         i.canonic=True
+                        i.attributes["is_canonical"] = "True"
                         outf.write(" ".join([i.chr,str(i.start),str(i.end),'"'+t.id+'";'])+"\n")
                     else:
                         i.canonic=False
+                        i.attributes["is_canonical"] = "False"
                         outf2.write(" ".join([i.chr,str(i.start),str(i.end),'"'+t.id+'";'])+"\n")
-                    # if i.start == 5429406 and i.end == 5429503:
-                    #     print((acceptor_seq[i.id],donor_seq[i.id]))
-                    #     print(i.canonic)
-                    #     print(i.id)
-                    #     print(i.strand)
+                
+                # Annotate if transcript has all introns canonical
+                if {i.attributes['is_canonical'] for i in t.introns} == {"True"}:
+                    t.attributes["all_introns_canonical"] = "True"
+                else:
+                    t.attributes["all_introns_canonical"] = "False"
 
 
 

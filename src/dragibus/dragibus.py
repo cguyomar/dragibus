@@ -74,7 +74,22 @@ def main():
             file_name = os.path.basename(f)
             dragibus.find_transcripts_with_polya_signal(transcripts[file_name],hexamers,50)
     
-    dragibus.make_report(genes, transcripts, exons, introns, errors, mode, args.skip_polya, out_prefix)
+    print("Rewrite annotation file")
+    for f in annotation_files:
+        outfile = "newfile.gff"
+        with (open(outfile, 'w')) as outf:
+            for gene_id, gene in genes[file_name].items():
+                g = genes[file_name][gene_id]
+                outf.write(g.format())
+                for t in g.transcripts:
+                    outf.write(t.format())
+                    for e in t.exons:
+                        outf.write(e.format())
+                    for i in t.introns:
+                        outf.write(i.format())
+
+
+    # dragibus.make_report(genes, transcripts, exons, introns, errors, mode, args.skip_polya, out_prefix)
 
 
 

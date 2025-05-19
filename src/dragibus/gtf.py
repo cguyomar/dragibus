@@ -1,4 +1,5 @@
 import logging
+import sys
 from collections import defaultdict
 
 
@@ -53,25 +54,27 @@ def parse_gtf(in_file,errors):
                             continue
 
                     else:
+                        logging.warning("Creating transcript line missing from input annotation")
                         t = Transcript(line[0:8],{k:v for k,v in f.attributes.items() if k in ["gene_id","transcript_id"]})
                         transcripts[t.id] = t
                         transcripts[f.transcript_id].add_exon(f)
 
                     # Add gene from exon gene_id  
                     if f.gene_id not in genes.keys():
+                        logging.warning("Creating gene line missing from input annotation")
                         g = Gene(line[0:8],{"gene_id":f.attributes["gene_id"]})
                         genes[g.id] = g
 
-                    # Associate transcript to gene if not already done
-                    if f.transcript_id not in {t.id for t in genes[g.id].transcripts}:
-                        try:
-                            genes[t.gene_id].add_transcript(transcripts[f.transcript_id])
-                        except WrongChromosomeTranscriptError as e:
-                            logging.warning(e)
-                            errors[e.key] += 1
-                        except WrongStrandTranscriptError as e:
-                            logging.warning(e)
-                            errors[e.key] += 1
+                        # Associate transcript to gene if not already done
+                        if f.transcript_id not in {t.id for t in genes[g.id].transcripts}:
+                            try:
+                                genes[t.gene_id].add_transcript(transcripts[f.transcript_id])
+                            except WrongChromosomeTranscriptError as e:
+                                logging.warning(e)
+                                errors[e.key] += 1
+                            except WrongStrandTranscriptError as e:
+                                logging.warning(e)
+                                errors[e.key] += 1
 
                     exons.add(f)
 
@@ -82,7 +85,8 @@ def parse_gtf(in_file,errors):
                         logging.warning(e)
                         errors[e.key] += 1
                         continue
-                    infile_transcripts[f.id] = f
+                    transcripts[f.id] = f
+                    genes[f.gene_id].add_transcript(transcripts[f.id])
                     # print(f.attributes)
                 if line[2]=="gene":
                     try:
@@ -91,7 +95,7 @@ def parse_gtf(in_file,errors):
                         logging.warning(e)
                         errors[e.key] += 1
                         continue
-                    infile_genes[f.id] = f
+                    genes[f.id] = f
                 else:
                     try:
                         f = Feature(line[0:8],line[8])
