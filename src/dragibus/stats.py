@@ -115,7 +115,12 @@ def binary_feature_distribution(stat_by_fname,rename={True:"True",False:"False",
         s = s.reindex([True,False,None], fill_value=0)
         t = s.get(True, 0)
         f = s.get(False, 0)
-        row = (t,t/(t+f),f,f/(t+f),s[None])
+        row = (
+            t,
+            "{:.2%}".format(t/(t+f)),
+            f,
+            "{:.2%}".format(f/(t+f)),
+            s[None])
         res[file] = row
 
     df = pd.DataFrame.from_dict(res, orient='index',
@@ -129,8 +134,6 @@ def binary_feature_distribution(stat_by_fname,rename={True:"True",False:"False",
     if sum(df[rename[None]].notna())==0:
         df.drop(axis=1,labels=rename[None],inplace=True)
 
-    df.iloc[:,1] = df.iloc[:,1].map("{:.2%}".format)
-    df.iloc[:,3] = df.iloc[:,3].map("{:.2%}".format)
     return(df)
 
 
