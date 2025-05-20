@@ -78,7 +78,7 @@ def parse_gtf(in_file,errors):
 
                     #exons.add(f)
 
-                if line[2]=="transcript":
+                elif line[2]=="transcript":
                     try:
                         f = Transcript(line[0:8],line[8])
                     except DragibusException as e:
@@ -88,7 +88,8 @@ def parse_gtf(in_file,errors):
                     transcripts[f.id] = f
                     genes[f.gene_id].add_transcript(transcripts[f.id])
                     # print(f.attributes)
-                if line[2]=="gene":
+
+                elif line[2]=="gene":
                     try:
                         f = Gene(line[0:8],line[8])
                     except DragibusException as e:
@@ -96,6 +97,15 @@ def parse_gtf(in_file,errors):
                         errors[e.key] += 1
                         continue
                     genes[f.id] = f
+
+                elif line[2]=="CDS":
+                    try:
+                        f = CDS(line[0:8],line[8])
+                    except DragibusException as e:
+                        logging.warning(e)
+                        errors[e.key] += 1
+                        continue
+                    transcripts[f.transcript_id].CDS = f
                 else:
                     try:
                         f = Feature(line[0:8],line[8])

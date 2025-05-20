@@ -15,6 +15,8 @@ def basic_stats(genes_by_f,transcripts_by_f,exons_by_f):
         transcripts = transcripts_by_f[f]
         genes = genes_by_f[f]
 
+        nb_CDS = len([t for t in transcripts.values() if t.CDS != None])
+
         nb_exons = len(exons)
         nb_distinct_exons = len({(e.chr,e.start,e.end) for e in exons})
         nb_transcripts = len(transcripts)
@@ -22,15 +24,26 @@ def basic_stats(genes_by_f,transcripts_by_f,exons_by_f):
         nb_introns = len({i for t in transcripts.values() for i in t.introns})
         nb_distinct_introns = len({(i.chr,i.start,i.end) for t in transcripts.values() for i in t.introns})
 
-        values[f] = [nb_exons,nb_distinct_exons,nb_transcripts,nb_genes,nb_introns,nb_distinct_introns]
+        values[f] = [
+            nb_genes,
+            nb_transcripts,
+            nb_CDS,
+            nb_exons,
+            nb_distinct_exons,
+            nb_introns,
+            nb_distinct_introns
+            ]
     
     
-    rownames = ["Number of exons",
-                "Number of distinct exons",
-                "Number of transcripts",
-                "Number of genes",
-                "Number of introns",
-                "Number of distinct introns"]
+    rownames = [
+        "Number of genes",
+        "Number of transcripts",
+        "Number of CDS",
+        "Number of exons",
+        "Number of distinct exons",
+        "Number of introns",
+        "Number of distinct introns"
+        ]
 
     df = pd.DataFrame(values,index=rownames)
 
@@ -98,10 +111,10 @@ def numeric_feature_distribution(stat_by_fname,breaks):
 def binary_feature_distribution(stat_by_fname,rename={True:"True",False:"False",None:"None"}):
     res = dict()
     for file in stat_by_fname.keys():
-        s = pd.value_counts(stat_by_fname[file],dropna=False,sort=True)
-        s = s.reindex([True,False,None])
-        t = s[True]
-        f = s[False]
+        s = pd.Series(stat_by_fname[file]).value_counts(dropna=False, sort=True)
+        s = s.reindex([True,False,None], fill_value=0)
+        t = s.get(True, 0)
+        f = s.get(False, 0)
         row = (t,t/(t+f),f,f/(t+f),s[None])
         res[file] = row
 

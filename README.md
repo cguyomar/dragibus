@@ -36,6 +36,10 @@ dragibus -h
 
 ## Usage : 
 
+Dragibus with only consider `gene` `transcript` `exon` `intron` and `CDS` features. Currently, other features are discarded
+
+It assumes that the gtf is sort by position and feature type (a tool like [gtfsort](https://github.com/alejandrogzi/gtfsort) will produce compatible files )
+
 ```
 dragibus --gtf file1.gtf file2.gtf ... --fasta genome.fasta --out report.md
 dragibus --gtf file1.gtf file2.gtf ... --fasta genome.fasta --out report.html

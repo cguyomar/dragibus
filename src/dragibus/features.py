@@ -151,6 +151,7 @@ class Transcript(Feature):
         self.cdna_length = None
         self.transcript_length = None
         self.polyA = None
+        self.CDS = False
         self.attributes["n_exons"] = 0
 
     def compute_length(self):
@@ -257,7 +258,19 @@ class Intron(Feature):
         else:
             return(((self.end-2,self.end),(self.start-1,self.start + 1 )))
 
+class CDS(Feature):
+    def __init__(self, fixed_fields, attributes):
+        if isinstance(attributes,str):
+            attributes = read_attributes(attributes)
+        else:
+            assert isinstance(attributes,dict)
 
+        try:
+            super(CDS, self).__init__(fixed_fields,attributes)
+        except Exception as e:
+            raise e
+        
+        self.transcript_id = self.attributes['transcript_id']
 
 def find_canonic_introns(transcripts,fasta):
     nb_introns = 0
