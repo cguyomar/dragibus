@@ -113,8 +113,8 @@ def binary_feature_distribution(stat_by_fname,rename={True:"True",False:"False",
     for file in stat_by_fname.keys():
         s = pd.Series(stat_by_fname[file]).value_counts(dropna=False, sort=True)
         s = s.reindex([True,False,None], fill_value=0)
-        t = s.get(True, 0)
-        f = s.get(False, 0)
+        t = s.get(True)
+        f = s.get(False)
         row = (
             t,
             "{:.2%}".format(t/(t+f)),

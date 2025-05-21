@@ -151,7 +151,7 @@ class Transcript(Feature):
         self.cdna_length = None
         self.transcript_length = None
         self.polyA = None
-        self.CDS = False
+        self.CDS = None
         self.attributes["n_exons"] = 0
 
     def compute_length(self):
@@ -175,6 +175,7 @@ class Transcript(Feature):
             self.exons.sort(key=lambda x:x.start)
             self.start = self.exons[0].start
             self.end = self.exons[-1].end
+            self.attributes["n_exons"] = len(self.exons)
 
             # Add exon number attribute if it's not present in the gtf
             for i,e in enumerate(self.exons):
