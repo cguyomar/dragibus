@@ -89,12 +89,15 @@ def main():
     # Large internal exons
     for f in annotation_files:
         file_name = os.path.basename(f)
-        for t in transcripts[file_name].values():
-            if int(t.attributes['n_exons']) > 2:
-                if True in [e.length > 500 and e.is_internal for e in t.exons]:
-                    t.attributes['has_long_internal_exon'] = 'True'
-                else:
-                    t.attributes['has_long_internal_exon'] = 'False'
+        for g in genes[file_name].values():
+            for t in g.transcripts:
+            # for t in transcripts[file_name].values():
+                if int(t.attributes['n_exons']) > 2:
+                    if True in [e.length > 500 and e.is_internal for e in t.exons]:
+                        t.attributes['has_long_internal_exon'] = 'True'
+                    else:
+                        t.attributes['has_long_internal_exon'] = 'False'
+                        
 
 
     ###
